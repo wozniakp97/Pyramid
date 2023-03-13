@@ -8,12 +8,9 @@
         v-model="selected"
         @change="sort(value)"
       >
-        <option value="price_min">Price descending</option>
-        <option value="price_max">Price ascending</option>
-        <option value="volume_min">Volume descending</option>
-        <option value="volume_max">Volume ascending</option>
-        <option value="height_min">Height descending</option>
-        <option value="height_max">Height ascending</option>
+        <option         
+        v-for="option in optionSelect"
+        :key="option.id" :value="option.key">{{option.name}}</option>
       </select>
     </div>
     <div class="container_grid">
@@ -37,7 +34,7 @@
             </div>
             <div class="price_container">
               <p>TOUR PRICE</p>
-              <b v-if="pyramid.available == true">${{ pyramid.price }}</b>
+              <b v-if="pyramid.available == true">${{ pyramid.price/100 }}</b>
               <b v-else-if="pyramid.available == false">Not open for tours</b>
             </div>
           </div>
@@ -50,42 +47,49 @@
 <script>
 import { ref } from "vue";
 
+
 export default {
     name: "AllPyramids",
+    data(){
+      return{
+          optionSelect:[
+            {id: 0, name: 'Price descending', key: 'price_min'},
+            {id: 1, name: 'Price ascending', key: 'price_max'},
+            {id: 2, name: 'Volume descending', key: 'volume_min'},
+            {id: 3, name: 'Volume ascending', key: 'volume_max'},
+            {id: 4, name: 'Height descending', key: 'height_min'},
+            {id: 5, name: 'Height ascending', key: 'height_max'},
+          ]
+      }
+        },
     props: {
         parsedResponse: {
             type: Array,
         },
     },
+
     setup(props) {
         const selected = ref("price_min");
         const store = props;
+
+        function volumeDescendingSort(volume) {
+          const [x, y, z] = volume.dimensions.split("x")
+          return Number(x) * Number(y) * Number(z) * 0.3
+      }
+
         function sort() {
             if (selected.value == "price_min") {
                  store.parsedResponse.sort((a, b) => b.price - a.price);
+                 
             }
             if (selected.value == "price_max") {
                 store.parsedResponse.sort((a, b) => a.price - b.price);
             }
             if (selected.value == "volume_min") {
-                 store.parsedResponse.sort((a, b) => Number(b.dimensions.split("x")[0]) *
-                    Number(b.dimensions.split("x")[1]) *
-                    Number(b.dimensions.split("x")[2]) *
-                    0.3 -
-                    Number(a.dimensions.split("x")[0]) *
-                        Number(a.dimensions.split("x")[1]) *
-                        Number(a.dimensions.split("x")[2]) *
-                        0.3);
+                 store.parsedResponse.sort((a, b) => volumeDescendingSort(b) - volumeDescendingSort(a));
             }
             if (selected.value == "volume_max") {
-                store.parsedResponse.sort((a, b) => Number(a.dimensions.split("x")[0]) *
-                    Number(a.dimensions.split("x")[1]) *
-                    Number(a.dimensions.split("x")[2]) *
-                    0.3 -
-                    Number(b.dimensions.split("x")[0]) *
-                        Number(b.dimensions.split("x")[1]) *
-                        Number(b.dimensions.split("x")[2]) *
-                        0.3);
+              store.parsedResponse.sort((a, b) => volumeDescendingSort(a) - volumeDescendingSort(b));
             }
             if (selected.value == "height_min") {
                 store.parsedResponse.sort((a, b) => Number(b.dimensions.split("x")[2]) -
@@ -165,35 +169,35 @@ export default {
 }
 
 
-@media (max-width: 1000px) {
-  .container_grid {
-    display: grid;
-    place-items: center;
-    grid-template-columns: repeat(3, 1fr);
-    column-gap: 15px;
-    row-gap: 15px;
-    align-items: start;
-  }
-  .price_container {
+// @media (max-width: 1000px) {
+//   .container_grid {
+//     display: grid;
+//     place-items: center;
+//     grid-template-columns: repeat(3, 1fr);
+//     column-gap: 15px;
+//     row-gap: 15px;
+//     align-items: start;
+//   }
+//   .price_container {
 
-  margin-left: 0 !important;
-}
+//   margin-left: 0 !important;
+// }
 
-.info_container {
-  display: flex;
-  margin: 10px 0 25px 20px;
-  flex-direction: column;
-}
-}
+// .info_container {
+//   display: flex;
+//   margin: 10px 0 25px 20px;
+//   flex-direction: column;
+// }
+// }
 
-@media (max-width: 800px) {
-  .container_grid {
-    display: grid;
-    place-items: center;
-    grid-template-columns: repeat(2, 1fr);
-    column-gap: 15px;
-    row-gap: 15px;
-    align-items: start;
-  }
-}
+// @media (max-width: 800px) {
+//   .container_grid {
+//     display: grid;
+//     place-items: center;
+//     grid-template-columns: repeat(2, 1fr);
+//     column-gap: 15px;
+//     row-gap: 15px;
+//     align-items: start;
+//   }
+// }
 </style>

@@ -60,17 +60,8 @@ export default {
         const response = await fetch("https://pyramids.mouflon.xyz/");
         let parsedResponse = await response.json();
 
-        function ff(){
-          
-          if(selected.value == 'min'){
-            parsedResponse = parsedResponse.sort((a, b) => b.name.localeCompare(a.name))
-          }
-          else{
-            parsedResponse = parsedResponse.sort((a, b) => a.name.localeCompare(b.name))
-          }
-        }
 
-        return { ...toRefs(menu), control, funkcja, parsedResponse, ff, selected};
+        return { ...toRefs(menu), control, funkcja, parsedResponse, selected};
     },
     components: { AllPyramids, StatisticsPyramids }
 }

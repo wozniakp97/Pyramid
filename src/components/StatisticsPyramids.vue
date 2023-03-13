@@ -33,29 +33,28 @@ export default {
         const store = props;
         const volume = ref(0);
         const cost = ref(0);
-        const storeLargestField = store.parsedResponse.sort((a, b) => Number(b.dimensions.split("x")[0]) *
-            Number(b.dimensions.split("x")[1]) -
-            Number(a.dimensions.split("x")[0]) * Number(a.dimensions.split("x")[1]));
-        const greatestVolume = store.parsedResponse.sort((a, b) => Number(b.dimensions.split("x")[0]) *
-            Number(b.dimensions.split("x")[1]) *
-            Number(b.dimensions.split("x")[2]) *
-            0.3 -
-            Number(a.dimensions.split("x")[0]) *
-                Number(a.dimensions.split("x")[1]) *
-                Number(a.dimensions.split("x")[2]) *
-                0.3);
+
+        function volumeDescendingSort(volume) {
+          const [x, y, z] = volume.dimensions.split("x")
+          return Number(x) * Number(y) * Number(z) * 0.3
+      }
+
+        function largestFieldSort(volume) {
+          const [x, y] = volume.dimensions.split("x")
+          return Number(x) * Number(y)
+      }
+
+        const storeLargestField = store.parsedResponse.sort((a, b) => largestFieldSort(b) - largestFieldSort(a));
+        const greatestVolume = store.parsedResponse.sort((a, b) => volumeDescendingSort(b) - volumeDescendingSort(a));
         const availableTrue = store.parsedResponse.filter((el) => el.available == true).length;
         const heightPyramid = store.parsedResponse.filter((el) => Number(el.dimensions.split("x")[2]) != 0).length;
+        
         store.parsedResponse.forEach((el) => {
             if (el.available == true) {
                 cost.value += el.price;
             }
             if (Number(el.dimensions.split("x")[2]) != 0) {
-                volume.value +=
-                    Number(el.dimensions.split("x")[0]) *
-                        Number(el.dimensions.split("x")[1]) *
-                        Number(el.dimensions.split("x")[2]) *
-                        0.3;
+                volume.value += volumeDescendingSort(el)
             }
         });
         return {
